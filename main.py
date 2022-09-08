@@ -3,7 +3,19 @@ from ray import Ray
 from vec3 import Point3, Vec3
 
 
+def hit_sphere(center: Point3, radius: float, r: Ray) -> bool:
+    oc = r.origin - center
+    a = Vec3.dot(r.direction, r.direction)
+    b = 2 * Vec3.dot(oc, r.direction)
+    c = Vec3.dot(oc, oc) - radius * radius
+    discriminant = b * b - 4 * a * c
+    return discriminant > 0
+
+
 def ray_color(r: Ray) -> Color:
+    if hit_sphere(Point3(0, 0, -1), 0.5, r):
+        return Color(1, 0, 0)
+
     unit_direction = r.direction.normalized()
     t = 0.5 * (unit_direction.y + 1)
     return (1 - t) * Color(1.0, 1.0, 1.0) + t * Color(0.5, 0.7, 1.0)
@@ -11,7 +23,7 @@ def ray_color(r: Ray) -> Color:
 
 # image
 aspect_ratio = 16 / 9
-image_width = 50
+image_width = 200
 image_height = int(image_width / aspect_ratio)
 
 
