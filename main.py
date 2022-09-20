@@ -1,20 +1,27 @@
 from color import Color
 from ray import Ray
 from vec3 import Point3, Vec3
+from math import sqrt
 
 
-def hit_sphere(center: Point3, radius: float, r: Ray) -> bool:
+def hit_sphere(center: Point3, radius: float, r: Ray) -> float:
     oc = r.origin - center
     a = Vec3.dot(r.direction, r.direction)
     b = 2 * Vec3.dot(oc, r.direction)
     c = Vec3.dot(oc, oc) - radius * radius
     discriminant = b * b - 4 * a * c
-    return discriminant > 0
+    if discriminant < 0:
+        return -1
+    else:
+        return (-b - sqrt(discriminant)) / (2 * a)
 
 
 def ray_color(r: Ray) -> Color:
-    if hit_sphere(Point3(0, 0, -1), 0.5, r):
-        return Color(1, 0, 0)
+    if (t := hit_sphere(Point3(0, 0, -1), 0.5, r)) >= 0:
+        normal = Vec3.normalized(ray.at(t) - Vec3(0, 0, -1))  # i don't believe it is a surface normal, but it is written so in the book
+        normal += Vec3(1, 1, 1)
+        normal *= 0.5
+        return Color.from_vec3(normal)
 
     unit_direction = r.direction.normalized()
     t = 0.5 * (unit_direction.y + 1)
