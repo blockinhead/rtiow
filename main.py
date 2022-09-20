@@ -6,14 +6,14 @@ from math import sqrt
 
 def hit_sphere(center: Point3, radius: float, r: Ray) -> float:
     oc = r.origin - center
-    a = Vec3.dot(r.direction, r.direction)
-    b = 2 * Vec3.dot(oc, r.direction)
-    c = Vec3.dot(oc, oc) - radius * radius
-    discriminant = b * b - 4 * a * c
+    a = r.direction.len_squared
+    half_b = Vec3.dot(oc, r.direction)
+    c = oc.len_squared - radius * radius
+    discriminant = half_b * half_b - a * c
     if discriminant < 0:
         return -1
     else:
-        return (-b - sqrt(discriminant)) / (2 * a)
+        return (-half_b - sqrt(discriminant)) / a
 
 
 def ray_color(r: Ray) -> Color:
