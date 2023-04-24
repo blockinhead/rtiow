@@ -1,5 +1,7 @@
 from color import Color
+from hittable import HittableList, Hittable
 from ray import Ray
+from sphere import Sphere
 from vec3 import Point3, Vec3
 from math import sqrt
 
@@ -16,9 +18,14 @@ def hit_sphere(center: Point3, radius: float, r: Ray) -> float:
         return (-half_b - sqrt(discriminant)) / a
 
 
-def ray_color(r: Ray) -> Color:
-    if (t := hit_sphere(Point3(0, 0, -1), 0.5, r)) >= 0:
-        normal = Vec3.normalized(ray.at(t) - Vec3(0, 0, -1))  # i don't believe it is a surface normal, but it is written so in the book
+def ray_color(r: Ray, world: Hittable) -> Color:
+    # if (t := hit_sphere(Point3(0, 0, -1), 0.5, r)) >= 0:
+    #     normal = Vec3.normalized(ray.at(t) - Vec3(0, 0, -1))  # i don't believe it is a surface normal, but it is written so in the book
+    #     normal += Vec3(1, 1, 1)
+    #     normal *= 0.5
+    #     return Color.from_vec3(normal)
+    if hit_record := world.hit(r, 0, float('inf')):
+        normal = hit_record.normal
         normal += Vec3(1, 1, 1)
         normal *= 0.5
         return Color.from_vec3(normal)
@@ -33,6 +40,10 @@ aspect_ratio = 16 / 9
 image_width = 200
 image_height = int(image_width / aspect_ratio)
 
+# world
+world = HittableList()
+world.add(Sphere(Point3(0, 0, -1), 0.5))
+world.add(Sphere(Point3(0, -100.5, -1), 100))
 
 # camera
 viewport_height = 2.0
@@ -58,4 +69,4 @@ with open('image.ppm', 'w') as f:
             direction = lower_left_corner + u * horizontal + v * vertical - origin
             ray = Ray(origin=origin,
                       direction=direction)
-            ray_color(ray).write_to(f)
+            ray_color(ray, world).write_to(f)
