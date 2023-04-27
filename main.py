@@ -1,3 +1,6 @@
+import random
+
+from camera import Camera
 from color import Color
 from hittable import HittableList, Hittable
 from ray import Ray
@@ -19,11 +22,6 @@ def hit_sphere(center: Point3, radius: float, r: Ray) -> float:
 
 
 def ray_color(r: Ray, world: Hittable) -> Color:
-    # if (t := hit_sphere(Point3(0, 0, -1), 0.5, r)) >= 0:
-    #     normal = Vec3.normalized(ray.at(t) - Vec3(0, 0, -1))  # i don't believe it is a surface normal, but it is written so in the book
-    #     normal += Vec3(1, 1, 1)
-    #     normal *= 0.5
-    #     return Color.from_vec3(normal)
     if hit_record := world.hit(r, 0, float('inf')):
         normal = hit_record.normal
         normal += Vec3(1, 1, 1)
@@ -39,6 +37,7 @@ def ray_color(r: Ray, world: Hittable) -> Color:
 aspect_ratio = 16 / 9
 image_width = 200
 image_height = int(image_width / aspect_ratio)
+sample_per_pixel = 100
 
 # world
 world = HittableList()
@@ -46,15 +45,7 @@ world.add(Sphere(Point3(0, 0, -1), 0.5))
 world.add(Sphere(Point3(0, -100.5, -1), 100))
 
 # camera
-viewport_height = 2.0
-viewport_width = aspect_ratio * viewport_height
-focal_length = 1.0
-
-origin = Point3(0, 0, 0)
-horizontal = Vec3(viewport_width, 0, 0)
-vertical = Vec3(0, viewport_height, 0)
-lower_left_corner = origin - horizontal / 2 - vertical / 2 - Vec3(0, 0, focal_length)
-
+camera = Camera()
 
 # render
 with open('image.ppm', 'w') as f:
@@ -63,10 +54,13 @@ with open('image.ppm', 'w') as f:
                   '255\n'])
 
     for j in range(image_height, 0, -1):
+        print(f'scanlines remaining: {j}')
         for i in range(image_width):
-            u = i / (image_width - 1)
-            v = j / (image_height - 1)
-            direction = lower_left_corner + u * horizontal + v * vertical - origin
-            ray = Ray(origin=origin,
-                      direction=direction)
-            ray_color(ray, world).write_to(f)
+            pixel_color = Color(0.0, 0.0, 0.0)
+            for _ in range(sample_per_pixel):
+                u = (i + random.random()) / (image_width - 1)
+                v = (j + random.random()) / (image_height - 1)
+                ray = camera.get_ray(u, v)
+                pixel_color += ray_color(ray, world)
+            pixel_color /= sample_per_pixel
+            pixel_color.write_to(f)
