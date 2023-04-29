@@ -21,23 +21,25 @@ def hit_sphere(center: Point3, radius: float, r: Ray) -> float:
         return (-half_b - sqrt(discriminant)) / a
 
 
-def ray_color(r: Ray, world: Hittable) -> Color:
-    if hit_record := world.hit(r, 0, float('inf')):
-        normal = hit_record.normal
-        normal += Vec3(1, 1, 1)
-        normal *= 0.5
-        return Color.from_vec3(normal)
+def ray_color(r: Ray, world: Hittable, depth: int) -> Color:
+    if depth <= 0:
+        return Color.black()
+
+    if hit_record := world.hit(r, 0.001, float('inf')):
+        target = hit_record.p + hit_record.normal + Vec3.random_in_unit_sphere().normalized()
+        return 0.5 * ray_color(Ray(hit_record.p, target - hit_record.p), world, depth - 1)
 
     unit_direction = r.direction.normalized()
     t = 0.5 * (unit_direction.y + 1)
-    return (1 - t) * Color(1.0, 1.0, 1.0) + t * Color(0.5, 0.7, 1.0)
+    return (1 - t) * Color.white() + t * Color(0.5, 0.7, 1.0)
 
 
 # image
 aspect_ratio = 16 / 9
 image_width = 200
 image_height = int(image_width / aspect_ratio)
-sample_per_pixel = 100
+sample_per_pixel = 50
+max_depth = 20
 
 # world
 world = HittableList()
@@ -61,6 +63,7 @@ with open('image.ppm', 'w') as f:
                 u = (i + random.random()) / (image_width - 1)
                 v = (j + random.random()) / (image_height - 1)
                 ray = camera.get_ray(u, v)
-                pixel_color += ray_color(ray, world)
+                pixel_color += ray_color(ray, world, max_depth)
             pixel_color /= sample_per_pixel
+            pixel_color = Color(sqrt(pixel_color.x), sqrt(pixel_color.y), sqrt(pixel_color.z))
             pixel_color.write_to(f)

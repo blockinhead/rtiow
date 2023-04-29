@@ -1,5 +1,6 @@
 from __future__ import annotations
 import typing
+import random
 import unittest
 
 
@@ -92,6 +93,16 @@ class Vec3:
                     a.z * b.x - a.x * b.z,
                     a.x * b.y - a.y * b.x)
 
+    @staticmethod
+    def random_in_unit_square() -> Vec3:
+        return Vec3(random.random(), random.random(), random.random())
+
+    @staticmethod
+    def random_in_unit_sphere() -> Vec3:
+        while True:
+            if (res := Vec3.random_in_unit_square() * 2.0 - Vec3(1.0, 1.0, 1.0)).len_squared < 1:
+                return res
+
 
 class Point3(Vec3):
     pass
@@ -106,3 +117,6 @@ class TestVec3(unittest.TestCase):
 
     def test_normalize(self):
         self.assertEqual(Vec3(2, 0, 0).normalized(), Vec3(1, 0, 0))
+
+    def test_random(self):
+        self.assertLess(Vec3.random_in_unit_sphere().len_squared, 1)
