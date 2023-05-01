@@ -1,13 +1,15 @@
 from hittable import Hittable, HitRecord
+from material import Material
 from vec3 import Vec3, Point3
 from ray import Ray
 from math import sqrt
 
 
 class Sphere(Hittable):
-    def __init__(self, center=Point3(0, 0, 0), radius=1.0):
+    def __init__(self, center: Point3, radius: float, material: Material):
         self.center = center
         self.radius = radius
+        self.material = material
 
     def hit(self, r: Ray, t_min: float, t_max: float) -> HitRecord | None:
         oc = r.origin - self.center
@@ -28,12 +30,9 @@ class Sphere(Hittable):
 
         p = r.at(root)
         normal=(p - self.center) / self.radius
-        front_face = Vec3.dot(r.direction, normal) < 0
-        normal = normal if front_face else -normal
 
         return HitRecord(p=p,
                          t=root,
                          normal=normal,
-                         front_face=front_face)
-
-
+                         material=self.material)\
+            .set_face_normal(r)

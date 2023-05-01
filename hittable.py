@@ -1,5 +1,8 @@
+from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+
+from material import Material
 from ray import Ray
 from vec3 import Vec3, Point3
 
@@ -8,8 +11,15 @@ from vec3 import Vec3, Point3
 class HitRecord:
     p: Point3
     normal: Vec3
+    material: Material
     t: float
-    front_face: bool
+    front_face: bool = True
+
+    def set_face_normal(self, ray: Ray) -> HitRecord:
+        self.front_face = Vec3.dot(ray.direction, self.normal) < 0
+        self.normal = self.normal if self.front_face else -self.normal
+
+        return self
 
 
 class Hittable(ABC):

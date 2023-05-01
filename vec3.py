@@ -83,6 +83,10 @@ class Vec3:
     def normalized(self) -> Vec3:
         return self * (1 / self.length)
 
+    def near_zero(self) -> bool:
+        s = 1e-8
+        return abs(self.x) < s and abs(self.y) < s and abs(self.z) < s
+
     @staticmethod
     def dot(a: Vec3, b: Vec3) -> float:
         return a.x * b.x + a.y * b.y + a.z * b.z
