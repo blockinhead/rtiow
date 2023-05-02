@@ -7,7 +7,7 @@ from ray import Ray
 from sphere import Sphere
 from vec3 import Point3, Vec3
 from math import sqrt
-from material import Lambertian
+from material import Lambertian, Metal
 
 
 def hit_sphere(center: Point3, radius: float, r: Ray) -> float:
@@ -27,8 +27,9 @@ def ray_color(r: Ray, world: Hittable, depth: int) -> Color:
         return Color.black()
 
     if hit_record := world.hit(r, 0.001, float('inf')):
-        scattered = hit_record.material.scatter(r, hit_record)
-        return scattered.attenuation * ray_color(scattered.ray, world, depth - 1)
+        if scattered := hit_record.material.scatter(r, hit_record):
+            return scattered.attenuation * ray_color(scattered.ray, world, depth - 1)
+        return Color.black()
 
     unit_direction = r.direction.normalized()
     t = 0.5 * (unit_direction.y + 1)
@@ -44,7 +45,8 @@ max_depth = 20
 
 # world
 world = HittableList()
-world.add(Sphere(Point3(0, 0, -1), 0.5, Lambertian(Color(0.7, 0.3, 0.3))))
+world.add(Sphere(Point3(-0.5, 0, -1), 0.5, Lambertian(Color(0.7, 0.3, 0.3))))
+world.add(Sphere(Point3(0.5, 0, -1), 0.5, Metal(Color(0.3, 0.3, 0.7))))
 world.add(Sphere(Point3(0, -100.5, -1), 100, Lambertian(Color(0.8, 0.8, 0.1))))
 
 # camera

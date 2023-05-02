@@ -18,18 +18,30 @@ class Scattered:
 
 class Material(ABC):
     @abstractmethod
-    def scatter(self, ray: Ray, hit_record: HitRecord) -> Scattered:
+    def scatter(self, ray: Ray, hit_record: HitRecord) -> Scattered | None:
         pass
 
 
 class Lambertian(Material):
-    def __init__(self, color: Color):
-        self.albedo = color
+    def __init__(self, albedo: Color):
+        self.albedo = albedo
 
-    def scatter(self, ray: Ray, hit_record: HitRecord) -> Scattered:
+    def scatter(self, ray: Ray, hit_record: HitRecord) -> Scattered | None:
         scatter_direction = hit_record.normal + Vec3.random_in_unit_sphere().normalized()
         if scatter_direction.near_zero():
             scatter_direction = hit_record.normal
 
         return Scattered(attenuation=self.albedo,
                          ray=Ray(hit_record.p, scatter_direction))
+
+
+class Metal(Material):
+    def __init__(self, albedo: Color):
+        self.albedo = albedo
+
+    def scatter(self, ray: Ray, hit_record: HitRecord) -> Scattered | None:
+        reflected = ray.direction.normalized().reflect_by(hit_record.normal)
+        scattered_ray = Ray(hit_record.p, reflected)
+        if Vec3.dot(scattered_ray.direction, hit_record.normal) > 0:
+            return Scattered(attenuation=self.albedo,
+                             ray=scattered_ray)

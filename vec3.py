@@ -87,6 +87,9 @@ class Vec3:
         s = 1e-8
         return abs(self.x) < s and abs(self.y) < s and abs(self.z) < s
 
+    def reflect_by(self, normal: Vec3) -> Vec3:
+        return self - 2 * Vec3.dot(self, normal) * normal
+
     @staticmethod
     def dot(a: Vec3, b: Vec3) -> float:
         return a.x * b.x + a.y * b.y + a.z * b.z
