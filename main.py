@@ -7,7 +7,7 @@ from ray import Ray
 from sphere import Sphere
 from vec3 import Point3, Vec3
 from math import sqrt
-from material import Lambertian, Metal
+from material import Lambertian, Metal, Dielectric
 
 
 def hit_sphere(center: Point3, radius: float, r: Ray) -> float:
@@ -45,8 +45,9 @@ max_depth = 20
 
 # world
 world = HittableList()
-world.add(Sphere(Point3(-0.5, 0, -1), 0.5, Lambertian(Color(0.7, 0.3, 0.3))))
-world.add(Sphere(Point3(0.5, 0, -1), 0.5, Metal(Color(0.7, 0.3, 0.3), fuzz=0.3)))
+world.add(Sphere(Point3(-0.7, 0, -1), 0.3, Lambertian(Color(0.7, 0.3, 0.3))))
+world.add(Sphere(Point3(0.0, 0, -1), 0.3, Metal(Color(0.7, 0.3, 0.3), fuzz=0.3)))
+world.add(Sphere(Point3(0.7, 0, -1), 0.3, Dielectric(1.5)))
 world.add(Sphere(Point3(0, -100.5, -1), 100, Lambertian(Color(0.8, 0.8, 0.1))))
 
 # camera

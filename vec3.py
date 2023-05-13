@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+import math
 import typing
 import random
 import unittest
@@ -90,6 +92,13 @@ class Vec3:
     def reflect_by(self, normal: Vec3) -> Vec3:
         return self - 2 * Vec3.dot(self, normal) * normal
 
+    def refract(self, normal: Vec3, etai_over_etat: float) -> Vec3:
+        cos_theta = min(Vec3.dot(-self, normal), 1.0)
+        r_out_perpendicular = etai_over_etat * (self + cos_theta * normal)
+        r_out_parallel = -math.sqrt(abs(1 - r_out_perpendicular.len_squared)) * normal
+        return r_out_perpendicular + r_out_parallel
+
+
     @staticmethod
     def dot(a: Vec3, b: Vec3) -> float:
         return a.x * b.x + a.y * b.y + a.z * b.z
@@ -127,3 +136,10 @@ class TestVec3(unittest.TestCase):
 
     def test_random(self):
         self.assertLess(Vec3.random_in_unit_sphere().len_squared, 1)
+
+    def test_refract(self):
+        v = Vec3.random_in_unit_square()
+        v._y = -(v.y * v.y + 0.1)  # to make it always fall
+        v = v.normalized()
+        up = Vec3(0.0, 1.0, 0.0)  # to refract on horizontal surface
+        self.assertTrue((v - v.refract(up, 1.0)).near_zero())
