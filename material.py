@@ -1,7 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
-from vec3 import Vec3
+from vec3 import Vec3, CannotRefract
 from color import Color
 from ray import Ray
 
@@ -54,7 +54,12 @@ class Dielectric(Material):
 
     def scatter(self, ray: Ray, hit_record: HitRecord) -> Scattered | None:
         refraction_ratio = 1.0 / self.index_of_refraction if hit_record.front_face else self.index_of_refraction
-        refracted = ray.direction.normalized().refract(hit_record.normal, refraction_ratio)
-        return Scattered(attenuation=Color.white(),
-                         ray=Ray(hit_record.p, refracted))
+        try:
+            refracted = ray.direction.normalized().refract(hit_record.normal, refraction_ratio)
+            return Scattered(attenuation=Color.white(),
+                             ray=Ray(hit_record.p, refracted))
+        except CannotRefract as e:
+            reflected = ray.direction.normalized().reflect_by(hit_record.normal)
+            return Scattered(attenuation=Color.white(),
+                             ray=Ray(hit_record.p, reflected))
 

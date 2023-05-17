@@ -6,6 +6,10 @@ import random
 import unittest
 
 
+class CannotRefract(Exception):
+    pass
+
+
 class Vec3:
     def __init__(self, x=0.0, y=0.0, z=0.0):
         self._x = x
@@ -94,6 +98,10 @@ class Vec3:
 
     def refract(self, normal: Vec3, etai_over_etat: float) -> Vec3:
         cos_theta = min(Vec3.dot(-self, normal), 1.0)
+        sin_theta = math.sqrt(1 - cos_theta * cos_theta)
+        if etai_over_etat * sin_theta > 1.0:
+            raise CannotRefract()
+
         r_out_perpendicular = etai_over_etat * (self + cos_theta * normal)
         r_out_parallel = -math.sqrt(abs(1 - r_out_perpendicular.len_squared)) * normal
         return r_out_perpendicular + r_out_parallel
