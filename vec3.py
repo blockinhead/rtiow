@@ -99,12 +99,18 @@ class Vec3:
     def refract(self, normal: Vec3, etai_over_etat: float) -> Vec3:
         cos_theta = min(Vec3.dot(-self, normal), 1.0)
         sin_theta = math.sqrt(1 - cos_theta * cos_theta)
-        if etai_over_etat * sin_theta > 1.0:
+        if etai_over_etat * sin_theta > 1.0 or self._reflectance(cos_theta, etai_over_etat) > random.random():
             raise CannotRefract()
 
         r_out_perpendicular = etai_over_etat * (self + cos_theta * normal)
         r_out_parallel = -math.sqrt(abs(1 - r_out_perpendicular.len_squared)) * normal
         return r_out_perpendicular + r_out_parallel
+
+    @staticmethod
+    def _reflectance(cos_theta: float, refraction_ratio: float):
+        r0 = (1 - refraction_ratio) / (1 + refraction_ratio)
+        r0 = r0 * r0
+        return r0 + (1 - r0) * math.pow((1 - cos_theta), 5)
 
 
     @staticmethod
