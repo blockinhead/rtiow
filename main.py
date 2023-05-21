@@ -45,13 +45,14 @@ max_depth = 20
 
 # world
 world = HittableList()
-world.add(Sphere(Point3(-0.7, 0, -1), 0.3, Lambertian(Color(0.7, 0.3, 0.3))))
+# world.add(Sphere(Point3(-0.7, 0, -1), 0.3, Lambertian(Color(0.7, 0.3, 0.3))))
+world.add(Sphere(Point3(-0.7, 0, -1), -0.3, Dielectric(1.5)))
 world.add(Sphere(Point3(0.0, 0, -1), 0.3, Metal(Color(0.7, 0.3, 0.3), fuzz=0.3)))
 world.add(Sphere(Point3(0.7, 0, -1), 0.3, Dielectric(1.5)))
 world.add(Sphere(Point3(0, -100.5, -1), 100, Lambertian(Color(0.8, 0.8, 0.1))))
 
 # camera
-camera = Camera()
+camera = Camera(vertical_fov=45.0)
 
 # render
 with open('image.ppm', 'w') as f:
