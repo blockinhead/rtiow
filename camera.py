@@ -6,6 +6,9 @@ from vec3 import Vec3, Point3
 
 class Camera:
     def __init__(self,
+                 look_from: Point3,
+                 look_at: Point3,
+                 up: Vec3 = Vec3(0.0, 1.0, 0.0),
                  vertical_fov = 90.0,
                  aspect_ratio = 16.0 / 9.0,
                  focal_length = 1.0,
@@ -13,16 +16,20 @@ class Camera:
         self.aspect_ratio = aspect_ratio
         self.viewport_height = 2.0 * math.tan(math.radians(vertical_fov) / 2)
         self.viewport_width = aspect_ratio * self.viewport_height
-        self.focal_length = focal_length
+        self.focal_length = focal_length  # currently not used anymore
 
-        self.origin = Point3(0.0, 0.0, 0.0)
-        self.horizontal = Vec3(self.viewport_width, 0.0, 0.0)
-        self.vertical = Vec3(0.0, self.viewport_height, 0.0)
+        self.w = (look_from - look_at).normalized()
+        self.u = Vec3.cross(up, self.w).normalized()
+        self.v = Vec3.cross(self.w, self.u)
+
+        self.origin = look_from
+        self.horizontal = self.viewport_width * self.u
+        self.vertical = self.viewport_height * self.v
 
         self.lower_left_corner = self.origin \
                                  - self.horizontal / 2 \
                                  - self.vertical / 2 \
-                                 - Vec3(0, 0, focal_length)
+                                 - self.w
 
     def get_ray(self, u: float, v: float) -> Ray:
         return Ray(origin=self.origin,
