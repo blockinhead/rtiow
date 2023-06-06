@@ -133,6 +133,12 @@ class Vec3:
             if (res := Vec3.random_in_unit_square() * 2.0 - Vec3(1.0, 1.0, 1.0)).len_squared < 1:
                 return res
 
+    @staticmethod
+    def random_in_unit_disk() -> Vec3:
+        while True:
+            if (res := Vec3(random.uniform(-1.0, 1.0), random.uniform(-1.0, 1.0), 0)).len_squared < 1:
+                return res
+
 
 class Point3(Vec3):
     pass

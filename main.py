@@ -1,4 +1,5 @@
 import random
+from timeit import default_timer as timer
 
 from camera import Camera
 from color import Color
@@ -37,7 +38,7 @@ def ray_color(r: Ray, world: Hittable, depth: int) -> Color:
 
 
 # image
-aspect_ratio = 16 / 9
+aspect_ratio = 16.0 / 9.0
 image_width = 200
 image_height = int(image_width / aspect_ratio)
 sample_per_pixel = 50
@@ -51,12 +52,15 @@ world.add(Sphere(Point3(0.7, 0, -1), 0.3, Metal(Color(0.7, 0.3, 0.3), fuzz=0.3))
 world.add(Sphere(Point3(0, -100.5, -1), 100, Lambertian(Color(0.8, 0.8, 0.1))))
 
 # camera
-camera = Camera(look_from=Point3(-2.0, 2.0, 1),
+camera = Camera(look_from=Point3(3.0, 3.0, 2),
                 look_at=Point3(0.0, 0.0, -1),
                 up=Vec3(0.0, 1.0, 0.0),
-                vertical_fov=20)
+                vertical_fov=20,
+                aspect_ratio=aspect_ratio,
+                aperture=2.0)
 
 # render
+t = timer()
 with open('image.ppm', 'w') as f:
     f.writelines(['P3\n',
                   '%d %d\n' % (image_width, image_height),
@@ -74,3 +78,4 @@ with open('image.ppm', 'w') as f:
             pixel_color /= sample_per_pixel
             pixel_color = Color(sqrt(pixel_color.x), sqrt(pixel_color.y), sqrt(pixel_color.z))
             pixel_color.write_to(f)
+print('done in %.2f seconds' % (timer() - t))
