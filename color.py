@@ -4,6 +4,7 @@ from vec3 import Vec3
 
 
 class Color(Vec3):
+    @DeprecationWarning
     def write_to(self, fp: typing.TextIO):
         fp.write('%d %d %d ' % (int(self.x * 255.999), int(self.y * 255.999), int(self.z * 255.999)))
 
@@ -18,3 +19,7 @@ class Color(Vec3):
     @staticmethod
     def white() -> Color:
         return Color(1.0, 1.0, 1.0)
+
+    @staticmethod
+    def random() -> Color:
+        return Color.from_vec3(Vec3.random_in_unit_square())
