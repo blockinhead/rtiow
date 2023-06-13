@@ -29,10 +29,10 @@ def ray_color(r: Ray, world: Hittable, depth: int) -> Color:
 
 # image
 aspect_ratio = 16.0 / 9.0
-image_width =  200 #  1600
+image_width =  800  # 200 # 1600
 image_height = int(image_width / aspect_ratio)
-sample_per_pixel = 50  # 250
-max_depth = 20  # 50
+sample_per_pixel = 50  # 50  # 250
+max_depth = 20  # 20  # 50
 
 # world
 world = HittableList()
